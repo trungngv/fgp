@@ -5,7 +5,7 @@ theseed = 20;
 func_assign = 'zmap_mahala';
 %func_assign = @assign_test;
 datasets_dir = 'fagpe/data/';
-output_file = 'fagpe/output/smgp100kmaha.mat';
+output_file = 'fagpe/output/100k_msgpv2_zhat.mat';
 dataset = 'song100k';
 zeromean = true;
 try

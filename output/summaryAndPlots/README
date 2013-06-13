@@ -1,0 +1,11 @@
+Notations:
+- v0: first version where in each step of the optimisation the labels (z) are always constrained to be zhat
+- v1: second version where optimisation iteratively optimise the inducing inputs (M-step) and assign z to zhat (E-step). The objective values do not always decrease in this implementation.
+- v2: similar to v1 but assignments in E-step are only accepted if that decreases the objective values.
+- kmeans: local fitc with kmeans clustering
+- random: local fitc with random clustering
+- zhat: assignments of points to nearest clusters
+- zmap: map assignments
+- rpc : initialisation of inducing points and clusters with recursive projection clustering
+
+Most experiments are ran with maha (shared diagonal covariance)

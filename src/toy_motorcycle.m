@@ -2,8 +2,8 @@
 %rng(131,'twister');
 func_assign = 'zmap_mahala';
 
-K = 2;
-num_inducing = 20;
+K = 1;
+num_inducing = 30;
 optim_xu = cell(K,1);
 load motorcycle;
 dim = size(x,2);
@@ -18,10 +18,10 @@ hold on;
 randind = init_rpc(x,K,num_inducing);
 hyp = gpml_hyp_to_fitc(gpml_init_hyp(x,y,false));
 w0 = [];
-colors = {'g','r','k'};
+colors = {'k','r','r'};
 for k=1:K
   xu_k = x(randind(:,k),:);
-  plot(xu_k, -150*ones(size(xu_k)),[colors{k} 'x'],'MarkerSize',18)
+  %plot(xu_k, -150*ones(size(xu_k)),[colors{k} 'x'],'MarkerSize',18)
   w0 = [w0; xu_k(:)];
   %hyp = gpml_hyp_to_fitc(gpml_init_hyp(xu_k,y(randind(:,k)),false));
   w0 = [w0; hyp];
@@ -29,7 +29,7 @@ end
 % learn basis points and hyp
 tstart = tic;
 %label = [];
-%[w,fval] = minimize(w0,'indpar_marginal',1000,x,y,K,num_inducing,func_assign);
+%[w,fval] = minimize(w0,'indpar_marginal',-1000,x,y,K,num_inducing,func_assign);
 [w,fval,label] = msgp_train(w0,x,y,K,num_inducing,50,10);
 toc(tstart)
 
@@ -60,28 +60,30 @@ for k=1:K
   end
 end
 
-% % standard gp:
-% sgp = standardGP([],x,y,xt,[],0);
-% samples = [];
-% for i=1:numel(xt)
-%   yi = fmean(i) + sqrt(fvar(i)) .* randn(100,1);
-%   samples = [samples; [repmat(xt(i),100,1) + 0.2 - 0.4 * rand(100,1),yi]];
-% end
-% plot(xt,sgp.fmean + 2*sqrt(sgp.fvar),'-r','LineWidth',1);
-% plot(xt,sgp.fmean - 2*sqrt(sgp.fvar),'-r','LineWidth',1);
-
-plot(xt,fmean,'-k','LineWidth',2);
+% standard gp:
+sgp = standard_gp([],x,y,xt,[],0);
+samples = [];
 for i=1:numel(xt)
   yi = fmean(i) + sqrt(fvar(i)) .* randn(100,1);
-  plot(repmat(xt(i),100,1) + 0.2 - 0.4 * rand(100,1),yi,'.b','MarkerSize', 2);
+  plot(repmat(xt(i),100,1) + 0.2 - 0.4 * rand(100,1),yi,'.b','MarkerSize', 3);
+  %samples = [samples; [repmat(xt(i),100,1) + 0.2 - 0.4 * rand(100,1),yi]];
 end
+plot(xt,sgp.fmean,'-k','LineWidth',2);
+% plot(xt,sgp.fmean + 2*sqrt(sgp.fvar),'-b','LineWidth',2);
+% plot(xt,sgp.fmean - 2*sqrt(sgp.fvar),'-b','LineWidth',2);
+ 
+% plot(xt,fmean,'-k','LineWidth',2);
+% % plot(xt,fmean + 2*sqrt(fvar),'-b','LineWidth',2);
+% % plot(xt,fmean - 2*sqrt(fvar),'-b','LineWidth',2);
+% for i=1:numel(xt)
+%   yi = fmean(i) + sqrt(fvar(i)) .* randn(100,1);
+%   plot(repmat(xt(i),100,1) + 0.2 - 0.4 * rand(100,1),yi,'.b','MarkerSize', 3);
+% end
 axis([min(x),max(x),-150,100]);
+box off;
+set(gca, 'FontSize', 30);
 xlabel('Time (ms)')
 ylabel('Acceleration (g)')
-box off;
-set(gca, 'FontSize', 20);
-% saveas(gcf,'motorcycle.png','png')
-% saveas(gcf,'motorcycle.eps','epsc')
 
 fprintf('fval = %.4f\n', fval(end));
 fprintf('smse = %.4f\n', mysmse(yt,fmean,mean(y))); % must use non-transformed y
@@ -89,17 +91,19 @@ fprintf('avg absolute diff (mae) = %.4f\n', mean(abs(fmean-yt)));
 fprintf('sq diff = %.4f\n', sqrt(mean((fmean-yt).^2))); 
 fprintf('nlpd = %.4f\n', -mean(logpred));
 
-%% plotting for motorcycle
-allc = zeros(K,1);
-for k=1:K
-  plot(optim_xu{k}, 100*ones(size(optim_xu{1})),[colors{k} 'x'],'MarkerSize',18)
-  allc(k) = mean(optim_xu{k});
-end
+%% plotting inducing points for motorcycle
+% allc = zeros(K,1);
+% for k=1:K
+%   plot(optim_xu{k}, 100*ones(size(optim_xu{1})),[colors{k} 'x'],'MarkerSize',24)
+%   allc(k) = mean(optim_xu{k});
+% end
 
-sortedc = sort(allc);
-for k=1:K-1
-  plot(0.5*[sortedc(k)+sortedc(k+1), sortedc(k)+sortedc(k+1)],[-150,100],'-');
-end
+% sortedc = sort(allc);
+% for k=1:K-1
+%   plot(0.5*[sortedc(k)+sortedc(k+1), sortedc(k)+sortedc(k+1)],[-150,100],'-');
+% end
+
+saveas(gcf,'motorcycle_gp.eps','epsc')
 
 figure;
 plot(1:numel(fval),fval);

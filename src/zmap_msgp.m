@@ -60,10 +60,10 @@ function llh = compute_llh(W,x,y,nu,label)
     snu2 = 1e-6*sn2;                              % hard coded inducing inputs noise
     Luu  = chol(Kuu + snu2*eye(nu));                       % Kuu + snu2*I = Luu'*Luu
     V  = Luu'\Ku;                                     % V = inv(Luu')*Ku => V'*V = Q
-    % total cost for lambda: O(KNM^2) due to (Luu')Ku = O(M^3) + O(NM^2)
+    % total cost for lambda: O(KNM^2) due to (Luu')^{-1}Ku = O(M^3) + O(NM^2)
     lambda = diagK + sn2 - sum(V.*V,1)';      % D + sn2*eye(n) = diag(K) + sn2 - diag(Q)
-    % K(Uk,Xk) Lambda^{-1} K(Xk,Uk) = A inv(D) A = (AL)(AL))'
-    % where L = D.^{-0.5} = 1 / sqrt(D)
+    % K(Uk,Xk) Lambda^{-1} K(Xk,Uk) = A inv(D) A' = (AL)(AL)'
+    % where L^2 = inv(D) => L = 1 / sqrt(D)
     AL = Ku(:,indk).*repmat(1./sqrt(lambda(indk)'),nu,1);
     Psik = Kuu + AL*AL';
     % K(X,Uk) inv(Psik) K(Uk,Xk) (inv(lambda(xk))*yk)

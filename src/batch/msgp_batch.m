@@ -9,7 +9,7 @@ datasets_dir = 'fagpe/data/';
 % fileName = 'synth1';
 dataset_names = {'kin40k','pumadyn32nm','pol'};
 %dataset_names = {'kin40k'};
-output_file = 'fagpe/output/msgpmapv2_k2maha.mat';
+output_file = 'fagpe/output/msgp_zhat.mat';
 try
   load(output_file, 'logger');
 catch eee
@@ -17,10 +17,10 @@ catch eee
   save(output_file, 'logger');
 end
 
-max_iters = 20;
-hyp_iters = 10;
+max_iters = 1;
+hyp_iters = 1;
 for K=[2]
-  for sss = 1:2
+  for sss = 1:3
     seed = theseed + sss;
     rng(seed,'twister');
     strdate = datestr(now, 'mmmdd');
@@ -45,11 +45,12 @@ for K=[2]
       w0 = [];
       for k=1:K
         xu_k = x(randind(:,k),:);
-        w0 = [w0; xu_k(:); hyp];
+        %w0 = [w0; xu_k(:); hyp];
+        w0 = [w0; xu_k(:); gpml_hyp_to_fitc(gpml_init_hyp(xu_k,y(randind(:,k)),false))];
       end
       % learn basis points and hyp
       tstart = tic;
-      [w,fval,label] = msgp_map_train(w0,x,y,K,nu,max_iters,hyp_iters);
+      [w,fval,label] = msgp_train(w0,x,y,K,nu,max_iters,hyp_iters);
       logger.(tstamp).(name).training_time = toc(tstart);
       logger.(tstamp).(name).obj = fval;
       logger.(tstamp).(name).optim_w = w;
