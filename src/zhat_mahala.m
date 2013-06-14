@@ -1,9 +1,8 @@
-function [label,centers,dist] = zmap_mahala(W,x,num_inducing,centers)
-%ZMAP_MAHALANOBIS [label,centres] = zmap_mahala(W,x,num_inducing,centers)
+function [label,centers,dist] = zhat_mahala(W,x,num_inducing,centers)
+%ZMAP_MAHALANOBIS [label,centres] = zhat_mahala(W,x,num_inducing,centers)
 %   
-% Compute maximum a posteriori (MAP) of label assignment z_{MAP} using
-% shared diagonal covariance matrix. This is equivalent to assigning x
-% to the nearest center measured by mahalanobis distance.
+% Compute the fast allocation zhat using shared diagonal covariance matrix.
+% This is equivalent to assigning x to the nearest center measured by mahalanobis distance.
 %
 % label(x_i) = argmin_k mahalanobis_dist(x,center_k) 
 % where center_k = the center (mean) of all basis points in partition k.

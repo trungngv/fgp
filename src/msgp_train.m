@@ -14,7 +14,7 @@ for iter=1:max_iters
   % W = [w1 ... wK] where wk are parameters of the k-th partition
   W = reshape(w,numel(w)/K,K);
   % e-step: find zmap and accept only if increases objective
-  newzmap = zmap_mahala(W(1:end-dim-2,:),x,nu);
+  newzmap = zhat_mahala(W(1:end-dim-2,:),x,nu);
   newobj = msgp_marginal(w,x,y,K,nu,newzmap);
   if isempty(fval) || newobj < fval(end)
     zmap = newzmap;

@@ -1,9 +1,8 @@
-function [label,centers] = zmap_euclid(W,x,num_inducing,centers)
-%ZMAP_EUCLID [label,centres] = zmap_euclid(W,x,num_inducing,centers)
+function [label,centers] = zhat_euclid(W,x,num_inducing,centers)
+%ZMAP_EUCLID [label,centres] = zhat_euclid(W,x,num_inducing,centers)
 %   
-% Compute maximum a posteriori (MAP) of label assignment z_{MAP} using
-% shared isotropic covariance matrix. This is equivalent to assigning x
-% to the nearest center measured by euclidean distance.
+% Compute fast allocation zhat using shared isotropic covariance matrix.
+% This is equivalent to assigning x to the nearest center measured by euclidean distance.
 %
 % label(x_i) = argmin_k euclidean_dist(x,center_k) 
 % where center_k = the center (mean) of all basis points in partition k.
