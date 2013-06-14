@@ -1,2 +1,4 @@
 *.m~
 output/*.mat
+output/archived
+output/octave-core
