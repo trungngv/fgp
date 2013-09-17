@@ -1,0 +1,301 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>test_l3bound</title><meta name="generator" content="MATLAB 7.14"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2013-08-29"><meta name="DC.source" content="test_l3bound.m"><style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img { margin-bottom:0px; } 
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, tt, code { font-size:12px; }
+pre { margin:0px 0px 20px; }
+pre.error { color:red; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+
+  </style></head><body><div class="content"><h2>Contents</h2><div><ul><li><a href="#2">Paths and general settings</a></li><li><a href="#3">Learning configuration</a></li><li><a href="#4">Generate samples from a GP</a></li><li><a href="#5">Training, test</a></li><li><a href="#6">Inducing point locations</a></li><li><a href="#7">Get data structures for computations of marginal likelihoods</a></li><li><a href="#8">computes the bounds</a></li><li><a href="#9">learning variational parameters</a></li><li><a href="#10">predictions using gpsvi</a></li><li><a href="#11">Plot training and predictions</a></li></ul></div><pre class="codeinput">clear <span class="string">all</span>; clc; close <span class="string">all</span>;
+</pre><h2>Paths and general settings<a name="2"></a></h2><pre class="codeinput">path(path(), <span class="string">'~/Dropbox/Matlab/utils'</span>);
+path(path(), <span class="string">'~/Dropbox/Matlab/gpml-matlab/gpml'</span>);
+path(genpath(<span class="string">'~/Dropbox/Matlab/Netlab'</span>), path());
+covfunc   = <span class="string">'covSEard'</span>;
+MIN_NOISE = 1e-7;
+PTRAIN    = 0.8; <span class="comment">% Proportion of data-points for training</span>
+PIND      = 0.2; <span class="comment">% Proportion inducing poinys</span>
+KMEANS    = 1;   <span class="comment">% Use K-means for inducing locations</span>
+SIGMA2N   = 0.001;
+BETAVAL   = 1/SIGMA2N;
+</pre><h2>Learning configuration<a name="3"></a></h2><pre class="codeinput">cf.maxiter   = 100;
+cf.tol       = 1e-3;
+cf.lrate     = 0.01;
+cf.Sinv0     = [];
+cf.m0        = [];
+cf.nbatch    = 2; <span class="comment">% batch size</span>
+cf.minnoise  = 1e-7;
+</pre><h2>Generate samples from a GP<a name="4"></a></h2><pre class="codeinput">x         = linspace(-10,10)';
+D         = size(x,2);
+nhyper    = eval(feval(covfunc));
+loghyper  = log(ones(nhyper,1));
+f         = sample_gp(x, covfunc, loghyper, MIN_NOISE);
+y         = f + sqrt(SIGMA2N)*randn(size(f)); <span class="comment">% adds isotropic gaussian noise</span>
+</pre><h2>Training, test<a name="5"></a></h2><pre class="codeinput">Nall      = size(x,1);
+N         = ceil(PTRAIN*Nall);
+idx       = randperm(Nall);
+idx_train = idx(1:N);
+idx_test  = idx(N+1:Nall);
+xtrain    = x(idx_train,:); ytrain = y(idx_train);
+xtest     = x(idx_test,:);  ytest  = y(idx_test);
+</pre><h2>Inducing point locations<a name="6"></a></h2><pre class="codeinput">M     = ceil(PIND*N);
+idx_z = randperm(N);
+idx_z = idx_z(1:M);
+z   = xtrain(idx_z,:);
+<span class="keyword">if</span> (KMEANS)
+    z   = kmeans(z, xtrain, foptions());
+<span class="keyword">end</span>
+</pre><h2>Get data structures for computations of marginal likelihoods<a name="7"></a></h2><pre class="codeinput">sf2        = exp(2*loghyper(nhyper));
+Kmm        = feval(covfunc, loghyper, z);
+[foo Knm]  = feval(covfunc, loghyper, x, z);
+Lmm        = chol(Kmm)';
+Imm        = eye(M);
+Kmminv     = ( Lmm' \ (Lmm \ Imm));
+valK       = sum(Knm'.*(Kmminv*Knm'),1)'; <span class="comment">% diag(Knm*kmminv*Kmn)</span>
+diagKtilde = sf2 - valK; <span class="comment">% diag(Knn - Knm*KmmInv*Kmn)</span>
+</pre><h2>computes the bounds<a name="8"></a></h2><pre class="codeinput">lsor = margl_sor(y, Knm, Kmm, Lmm, BETAVAL);
+l2 = l2bound(y, Knm, Kmm, Lmm, diagKtilde, BETAVAL);
+
+
+<span class="comment">% R = 10;</span>
+<span class="comment">% l3 = zeros(R,1);</span>
+<span class="comment">% S = 1e-7*eye(M);</span>
+<span class="comment">% for r = 1 : R</span>
+<span class="comment">%     idx   = randperm(N);</span>
+<span class="comment">%     idx   = idx(1:M);</span>
+<span class="comment">%     m     = ytrain(idx);</span>
+<span class="comment">%     l3(r) = l3bound(y, Knm, Lmm, Kmminv, diagKtilde, BETAVAL, m, S);</span>
+<span class="comment">% end</span>
+<span class="comment">% %m = ytrain(idx_z); % TO DO PREDICTIONs at TZ instead</span>
+<span class="comment">% %l3(R) = l3bound(y, Knm, Lmm, Kmminv, diagKtilde, BETAVAL, m, S);</span>
+<span class="comment">% figure;</span>
+<span class="comment">% plot((1:R)', lsor*ones(R,1), 'r-'); hold on;</span>
+<span class="comment">% plot((1:R)', l2*ones(R,1), 'g-'); hold on;</span>
+<span class="comment">% plot((1:R)', l3, 'b-');</span>
+<span class="comment">% legend({'L-SOR', 'L2', 'L3'});</span>
+</pre><h2>learning variational parameters<a name="9"></a></h2><pre class="codeinput">figure;
+semilogy((1:cf.maxiter)', lsor*ones(cf.maxiter,1), <span class="string">'b-'</span>); hold <span class="string">on</span>;
+semilogy((1:cf.maxiter)', l2*ones(cf.maxiter,1), <span class="string">'g-'</span>); hold <span class="string">on</span>;
+legend({<span class="string">'L-SOR'</span>, <span class="string">'L2'</span>});
+[m S] = learn_q_gpsvi(y, Knm, Lmm, Kmminv, diagKtilde, BETAVAL, cf);
+title(<span class="string">'L3 vs L2 and LSOR'</span>);
+ylabel(<span class="string">'ELBO'</span>);
+</pre><img vspace="5" hspace="5" src="test_l3bound_01.png" alt=""> <h2>predictions using gpsvi<a name="10"></a></h2><pre class="codeinput">[mupred varpred] = predict_gpsvi(Kmminv, covfunc, loghyper, m, S, z, x);
+</pre><h2>Plot training and predictions<a name="11"></a></h2><pre class="codeinput">figure;
+[x idx]  = sort(x);
+mupred   = mupred(idx);
+varpred  = varpred(idx);
+plot_confidence_interval(x,mupred,sqrt(varpred),1);
+hold <span class="string">on</span>;
+<span class="comment">%plot(x, mupred, 'r--');</span>
+plot(x,f); hold <span class="string">on</span>;
+plot(xtrain, ytrain, <span class="string">'ro'</span>, <span class="string">'MarkerSize'</span>, 8); hold <span class="string">on</span>;
+plot(z, min(y)*ones(size(z,1), 1), <span class="string">'kx'</span>, <span class="string">'MarkerSize'</span>, 10);
+ylabel(<span class="string">'Predictive distribution'</span>);
+</pre><img vspace="5" hspace="5" src="test_l3bound_02.png" alt=""> <p class="footer"><br>
+      Published with MATLAB&reg; 7.14<br></p></div><!--
+##### SOURCE BEGIN #####
+clear all; clc; close all;
+
+%% Paths and general settings
+path(path(), '~/Dropbox/Matlab/utils');
+path(path(), '~/Dropbox/Matlab/gpml-matlab/gpml');
+path(genpath('~/Dropbox/Matlab/Netlab'), path());
+covfunc   = 'covSEard';
+MIN_NOISE = 1e-7;
+PTRAIN    = 0.8; % Proportion of data-points for training
+PIND      = 0.2; % Proportion inducing poinys        
+KMEANS    = 1;   % Use K-means for inducing locations
+SIGMA2N   = 0.001;
+BETAVAL   = 1/SIGMA2N;
+
+%% Learning configuration
+cf.maxiter   = 100;
+cf.tol       = 1e-3;
+cf.lrate     = 0.01;
+cf.Sinv0     = [];
+cf.m0        = [];
+cf.nbatch    = 2; % batch size 
+cf.minnoise  = 1e-7;
+
+%% Generate samples from a GP
+x         = linspace(-10,10)';
+D         = size(x,2);
+nhyper    = eval(feval(covfunc));
+loghyper  = log(ones(nhyper,1));
+f         = sample_gp(x, covfunc, loghyper, MIN_NOISE);
+y         = f + sqrt(SIGMA2N)*randn(size(f)); % adds isotropic gaussian noise
+
+%% Training, test 
+Nall      = size(x,1); 
+N         = ceil(PTRAIN*Nall);
+idx       = randperm(Nall);
+idx_train = idx(1:N);
+idx_test  = idx(N+1:Nall);
+xtrain    = x(idx_train,:); ytrain = y(idx_train); 
+xtest     = x(idx_test,:);  ytest  = y(idx_test);
+
+%% Inducing point locations
+M     = ceil(PIND*N);
+idx_z = randperm(N);
+idx_z = idx_z(1:M);
+z   = xtrain(idx_z,:); 
+if (KMEANS)
+    z   = kmeans(z, xtrain, foptions());
+end
+
+
+%% Get data structures for computations of marginal likelihoods
+sf2        = exp(2*loghyper(nhyper));  
+Kmm        = feval(covfunc, loghyper, z);
+[foo Knm]  = feval(covfunc, loghyper, x, z);
+Lmm        = chol(Kmm)';
+Imm        = eye(M);
+Kmminv     = ( Lmm' \ (Lmm \ Imm));
+valK       = sum(Knm'.*(Kmminv*Knm'),1)'; % diag(Knm*kmminv*Kmn)
+diagKtilde = sf2 - valK; % diag(Knn - Knm*KmmInv*Kmn)
+
+
+%% computes the bounds
+lsor = margl_sor(y, Knm, Kmm, Lmm, BETAVAL);
+l2 = l2bound(y, Knm, Kmm, Lmm, diagKtilde, BETAVAL);
+
+
+% R = 10;
+% l3 = zeros(R,1);
+% S = 1e-7*eye(M);
+% for r = 1 : R
+%     idx   = randperm(N);
+%     idx   = idx(1:M);
+%     m     = ytrain(idx);
+%     l3(r) = l3bound(y, Knm, Lmm, Kmminv, diagKtilde, BETAVAL, m, S);
+% end
+% %m = ytrain(idx_z); % TO DO PREDICTIONs at TZ instead
+% %l3(R) = l3bound(y, Knm, Lmm, Kmminv, diagKtilde, BETAVAL, m, S);
+% figure;
+% plot((1:R)', lsor*ones(R,1), 'r-'); hold on;
+% plot((1:R)', l2*ones(R,1), 'g-'); hold on;
+% plot((1:R)', l3, 'b-');
+% legend({'L-SOR', 'L2', 'L3'});
+
+
+
+%% learning variational parameters
+figure;
+semilogy((1:cf.maxiter)', lsor*ones(cf.maxiter,1), 'b-'); hold on;
+semilogy((1:cf.maxiter)', l2*ones(cf.maxiter,1), 'g-'); hold on;
+legend({'L-SOR', 'L2'});
+[m S] = learn_q_gpsvi(y, Knm, Lmm, Kmminv, diagKtilde, BETAVAL, cf);
+title('L3 vs L2 and LSOR');
+ylabel('ELBO');
+
+%% predictions using gpsvi
+[mupred varpred] = predict_gpsvi(Kmminv, covfunc, loghyper, m, S, z, x);
+
+%% Plot training and predictions
+figure;
+[x idx]  = sort(x);
+mupred   = mupred(idx);
+varpred  = varpred(idx);
+plot_confidence_interval(x,mupred,sqrt(varpred),1);
+hold on;
+%plot(x, mupred, 'rREPLACE_WITH_DASH_DASH'); 
+plot(x,f); hold on;
+plot(xtrain, ytrain, 'ro', 'MarkerSize', 8); hold on;
+plot(z, min(y)*ones(size(z,1), 1), 'kx', 'MarkerSize', 10); 
+ylabel('Predictive distribution');
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+##### SOURCE END #####
+--></body></html>
