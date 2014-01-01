@@ -50,12 +50,14 @@ for i = 1 : cf.maxiter
     %Kmnval    = Knm(idx,:)';
     Kmnval = feval(cf.covFunc, cf.loghyper, z, x(idx,:));
     A         = Kmminv*Kmnval;
+    clear Kmnval;
     Lambdaval = betaval*(A*A') + Kmminv;
     yval      = y(idx);
     
     theta2 = theta2_old + lrate*(-0.5*Lambdaval - theta2_old);
     theta1 = theta1_old + lrate*(betaval*A*yval - theta1_old);
-   
+    clear A;
+ 
     theta1_old = theta1;
     theta2_old = theta2;
     

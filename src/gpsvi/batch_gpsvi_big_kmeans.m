@@ -4,7 +4,7 @@ clear all; clc;
 path(path(), '~/projects/myutils');
 path(path(), genpath('~/projects/fagpe'));
 covfunc   = 'covSEard';
-INIT    = 'rpc';   % 'random', 'rpc', or 'kmeans' use rpc instead of k-means due to the size
+INIT    = 'kmeans';   % 'rand', 'rpc', or 'kmeans'
 SIGMA2N   = 1e-7;
 BETAVAL   = 1/SIGMA2N;
 
@@ -27,10 +27,9 @@ disp('finish reading data')
 % load learned hyperparameters from subset of data
 load('~/projects/fagpe/output/song100k_sod.mat'); 
 tstamps = fieldnames(logger);
-loghyp_learned = zeros(size(xtrain,2)+2,5);
+loghyp_learned = zeros(size(xtrain,2)+1,5);
 for i=1:numel(tstamps)
-  loghyp_learned(1:end-1,i) = logger.(tstamps{i}).hyp_learned.cov;
-  loghyp_learned(end) =  logger.(tstamps{i}).hyp_learned.lik;
+  loghyp_learned(:,i) = logger.(tstamps{i}).hyp_learned.cov;
 end
 clear logger;
 output_file = ['~/projects/fagpe/output/song100k_gpsvi_' INIT '.mat'];
@@ -71,21 +70,28 @@ elseif (isequal(INIT, 'rpc'))
     z(i+1,:) = mean(xtrain(clusterInd == i,:));
   end
 else
-  z = zeros(M, size(xtrain,2));
-  nclusters = 100;
+  z = []; 
+  nclusters = 10;
   [clusterInd, ~] = kmeans(xtrain, nclusters);
   for i=1:nclusters
     points = xtrain(clusterInd==i,:);
-    idx_z = randperm(size(points,1),M/nclusters); % M / nclusters points from each cluster
-    z((i-1)*M/nclusters+1 : i*M/nclusters,:) = points(idx_z,:);
-  end 
+    if (size(points,1) > M/nclusters)
+      idx_z = randperm(size(points,1),M/nclusters); % M / nclusters points from each cluster
+      z = [z; points(idx_z,:)];
+    else
+      disp(['cluster ' num2str(i) ' has fewer than ' num2str(M/nclusters) 'points ']);
+    end
+  end
+  remaning = M - size(z,1);
+  idx_z = randperm(N,remaning);
+  z = [z; xtrain(idx_z,:)]; 
 end
 
 %% Get data structures for computations of marginal likelihoods
 tstart = tic;
 loghyper = loghyp_learned(:,sss);
 cf.loghyper = loghyper;
-Kmm             = feval(covfunc, loghyper(1:end-1), z);
+Kmm             = feval(covfunc, loghyper, z);
 %[diagKnn Kmn] = feval(covfunc, loghyper, z, xtrain);
 %Knm = Kmn'; clear Kmn;
 %diagKnn         = feval(covfunc, loghyper, xtrain, 'diag'); % new api
@@ -103,12 +109,11 @@ logger.(tstamp).m = m;
 logger.(tstamp).S = S;
 tstart = tic;
 disp('making prediction...')
-[mupred varpred] = predict_gpsvi(Kmminv, covfunc, loghyper(1:end-1), m, S, z, xtest);
+[mupred varpred] = predict_gpsvi(Kmminv, covfunc, loghyper, m, S, z, xtest);
 logger.(tstamp).prediction_time = toc(tstart);
 mupred = mupred + y_mean;
 logger.(tstamp).smse = mysmse(ytest,mupred,y_mean);
-% this nlpd is consitent with gpmlFITC and gp
-logger.(tstamp).nlpd = mynlpd(ytest,mupred,varpred + exp(2*loghyper(end)));
+logger.(tstamp).nlpd = mynlpd(ytest,mupred,varpred);
 logger.(tstamp).mae = mean(abs(mupred-ytest));
 logger.(tstamp).sqdiff = sqrt(mean((mupred-ytest).^2));
 save(output_file, 'logger');
