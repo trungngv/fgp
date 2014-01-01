@@ -2,11 +2,11 @@
 %clear; close all;
 
 %func_assign = 'assign_nearest_center';
-func_assign = 'zmap_mahala';
+func_assign = 'zhat_mahala';
 datasets_dir = 'fagpe/data/';
 dataset = 'song100k';
 
-%[x,y,xt,yt] = load_data([datasets_dir dataset], dataset);
+[x,y,xt,yt] = load_data([datasets_dir dataset], dataset);
 y0 = y-mean(y);
 disp('finished reading data')
 

@@ -2,7 +2,7 @@
 clear; clc; close all;
 theseed = 1111;
 
-func_assign = 'zmap_mahala';
+func_assign = 'zhat_mahala';
 %func_assign = @assign_test;
 datasets_dir = 'fagpe/data/';
 % datasetName = 'mysynth';

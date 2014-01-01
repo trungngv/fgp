@@ -2,8 +2,7 @@
 %clear; clc; close all;
 theseed = 20;
 
-func_assign = 'zmap_mahala';
-%func_assign = @assign_test;
+func_assign = 'zhat_mahala';
 datasets_dir = 'fagpe/data/';
 output_file = 'fagpe/output/rpc_indpar100kmaha.mat';
 dataset = 'song100k';
