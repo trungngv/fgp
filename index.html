@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset='utf-8'>
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+
+    <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen" />
+    <link rel="stylesheet" type="text/css" href="stylesheets/pygment_trac.css" media="screen" />
+    <link rel="stylesheet" type="text/css" href="stylesheets/print.css" media="print" />
+
+    <title>Fast Allocation of Gaussian Process Experts by trungngv</title>
+  </head>
+
+  <body>
+
+    <header>
+      <div class="container">
+        <h1>Fast Allocation of Gaussian Process Experts</h1>
+        <h2>Gaussian Process, Mixture of Gaussian Process Experts</h2>
+
+        <section id="downloads">
+          <a href="https://github.com/trungngv/fagpe/zipball/master" class="btn">Download as .zip</a>
+          <a href="https://github.com/trungngv/fagpe/tarball/master" class="btn">Download as .tar.gz</a>
+          <a href="https://github.com/trungngv/fagpe" class="btn btn-github"><span class="icon"></span>View on GitHub</a>
+        </section>
+      </div>
+    </header>
+
+    <div class="container">
+      <section id="main_content">
+        <p>Fast Allocation of Gaussian Process Experts</p>
+
+<p>Author: Trung V. Nguyen (<a href="mailto:trung.ngvan@gmail.com">trung.ngvan@gmail.com</a>) and Edwin V. Bonilla</p>
+
+<p>This is the package MSGP that implements the mixture of sparse Gaussian Process experts model in the paper 'Fast Allocation of Gaussian Process Experts'.</p>
+
+<h2>
+<a name="1-datasets" class="anchor" href="#1-datasets"><span class="octicon octicon-link"></span></a>1. Datasets</h2>
+
+<p>The 4 datasets (kin40k, pol, pumadyn32nm, and motorcycle) are provided in the 'data' directory.</p>
+
+<p>For kin40k, pol, and pumadyn32nm, call load_data() to get the training and testing data used in the paper.</p>
+
+<p>Example: [x,y,xtest,ytest] = load_data('data/kin40k','kin40k');</p>
+
+<ul>
+<li>The 100k songs dataset is not provided due to its large size but can be obtained at
+<a href="http://archive.ics.uci.edu/ml/datasets/YearPredictionMSD">http://archive.ics.uci.edu/ml/datasets/YearPredictionMSD</a>
+</li>
+</ul><p>To get the same training and testing data as in the paper, simply run:</p>
+
+<p>src/scripts/song100kscript.m </p>
+
+<h2>
+<a name="2-how-to-run-msgp" class="anchor" href="#2-how-to-run-msgp"><span class="octicon octicon-link"></span></a>2. How to run MSGP</h2>
+
+<p>The two main functions for using MSGP are src/msgp_train.m and src/msgp_predict.m
+See src/scripts/demo.m to see the example of using msgp on the motorcycle dataset.</p>
+
+<h2>
+<a name="3-other-baselines" class="anchor" href="#3-other-baselines"><span class="octicon octicon-link"></span></a>3. Other baselines</h2>
+
+<p>The localFITC methods can be run with src/gps_fitc_train.m and src/gps_fitc_predict.m.</p>
+
+<p>See src/scripts/randpar_batch.m for an example.</p>
+
+<p>The SoD baseline is in src/scripts/song100k_sod.m</p>
+
+<p>The GPSVI baseline is in src/gpsvi/batch_gpsvi_big.m (note that it requires the learned hyperparameters of SoD).</p>
+
+<p>Other baselines for the 100k dataset can be found in src/scripts/song100k_baselines.m.</p>
+
+<h2>
+<a name="4-multicore-implementation" class="anchor" href="#4-multicore-implementation"><span class="octicon octicon-link"></span></a>4. Multicore implementation</h2>
+
+<p>The main code for multicore is in libs/multicore/msgp. Email me if you have problems using multicore with MSGP.</p>
+
+<h2>
+<a name="5-dependencies" class="anchor" href="#5-dependencies"><span class="octicon octicon-link"></span></a>5. Dependencies</h2>
+
+<ul>
+<li>MSGP requires 3 external libraries: GPML [1], GPRApprox_Comparison [2], and SPGP_dist [3]
+in addition to my own library of utility function (myutils)</li>
+<li>If multicore library is used, it also requires the multicore package</li>
+<li>If GPSVI is used, it requires the gpsvi implementation by Edwin Bonilla which depends on the 
+netlab and myutil package
+All libraries are included for your convenience.</li>
+</ul><h2>
+<a name="references" class="anchor" href="#references"><span class="octicon octicon-link"></span></a>References:</h2>
+
+<p>[1] Rasmussen, Carl Edward and Nickisch, Hannes. Gaussian processes for machine learning (gpml) toolbox. The
+Journal of Machine Learning Research, 11:3011–3015, 2010</p>
+
+<p>[2] Chalupka, Krzysztof, Williams, Christopher KI, and Murray, Iain. A framework for evaluating approximation
+methods for gaussian process regression. arXiv preprint arXiv:1205.6326, 2012.</p>
+
+<p>[3] Snelson, Ed and Ghahramani, Zoubin. Sparse gaussian processes using pseudo-inputs, NIPS 2006.</p>
+      </section>
+    </div>
+
+    
+  </body>
+</html>
