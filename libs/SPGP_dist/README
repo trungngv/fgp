@@ -1,0 +1,45 @@
+'spgp_pred' computes the SPGP predictive distribution for a set of
+test inputs. You need to supply a set of 'pseudo-inputs' or 'basis
+vectors' for the approximation, and suitable hyperparameters for the
+covariance. You can use any method you like for finding the
+'pseudo-inputs', with the simplest obviously being a random subset of
+the data. It is coded for Gaussian covariance function, but you could
+very easily alter this. It is also fine to use for high dimensional
+data sets.
+
+'spgp_lik' is the SPGP (negative) marginal likelihood and gradients
+with respect to pseudo-inputs and hyperparameters. So you can use this
+if you wish to try to optimize the positioning of pseudo-inputs and
+find good hyperparameters, before using 'spgp_pred'. I would recommend
+initializing the pseudo-inputs on a random subset of the data, and
+initializing the hyperparameters sensibly. Its current limitations are
+that 1) it is slow and memory intensive for high dimensional data sets
+2) it is heavily optimized for the Gaussian covariance at the moment,
+so you can't just plug in another covariance function. Use in
+conjunction wth a suitable optimizer such as Carl Rasmussen's CG
+'minimize' function:
+
+http://www.kyb.tuebingen.mpg.de/bs/people/carl/code/minimize/
+
+If you have high dimensional data sets, then you can always try
+optimizing a small number of pseudo-inputs, whilst keeping a larger
+number fixed on a random subset of the data. I am working on code for
+learning a dimensionality reducing linear transformation at the same
+time to help get around this problem too, but don't have it working
+yet.
+
+If you encounter problems with determining suitable hyperparameters,
+it may be better to fix the hyperparameters in advance (for example by
+training a full GP on a subset of data first). 'spgp_lik_nohyp'
+computes gradients of the marginal likelihood with respect to
+pseudo-inputs ONLY. This can be used to optimize the pseudo-inputs,
+whilst keeping hyperparameterss fixed.
+
+'demo_script' is an example of how you could use the code to train and
+make predictions on a very simple 1D data set ('train_inputs',
+'train_outputs', and 'test_inputs'). You could modify this script to
+run your own problems (remove all the plotting stuff at the end).
+
+Hope this is enough to get you started; let me know of any problems:
+
+snelson@gatsby.ucl.ac.uk 

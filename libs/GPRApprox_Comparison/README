@@ -1,0 +1,13 @@
+
+This tarball contains code, evaluation scripts and data for the
+experiments reported in the paper "A Framework for Evaluating
+Approximation Methods for Gaussian Process Regression" by Krzysztof
+Chalupka, Christopher K. I. Williams, and Iain Murray, School of
+Informatics, University of Edinburgh.
+
+ evaluations/  the scripts to run the main experiments
+        code/  the GP approximation code used above
+side_studies/  code to make figures for iterative methods and IFGT
+
+May 2012
+

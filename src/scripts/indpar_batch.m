@@ -5,8 +5,6 @@ theseed = 1111;
 func_assign = 'zhat_mahala';
 %func_assign = @assign_test;
 datasets_dir = 'fagpe/data/';
-% datasetName = 'mysynth';
-% fileName = 'synth1';
 dataset_names = {'kin40k','pumadyn32nm','pol'};
 output_file = 'fagpe/output/msgp_k2maha.mat';
 try

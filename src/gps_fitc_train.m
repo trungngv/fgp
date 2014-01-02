@@ -13,7 +13,7 @@ function models = gps_fitc_train(x,y,K,label,num_inducing,max_fevals)
 %   - model.nlm     : the negative log marginal likelihood of the model
 % 
 % INPUT
-%   - label : 
+%   - label : partition/cluster label of the training data
 %   - num_inducing : number of inducing points to use for each partition
 %
 % OUTPUT

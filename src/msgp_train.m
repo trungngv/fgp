@@ -2,11 +2,31 @@ function [w,fval,zmap] = msgp_train(w,x,y,K,nu,max_iters,hyp_iters)
 %MSGP_TRAIN [w,fval,zmap] = msgp_train(w,x,y,K,nu,max_iters,hyp_iters)
 % 
 % Training for mixture of sparse gaussian process.
-% This version assign z using the z proxy.
+% This version assigns z using zhat (equation 22).
+%
+% INPUT:
+%   - w : vector containing all of inducing inputs and hyperparameters (see
+%   demo.m for an example of how to create this vector)
+%   - x : training input
+%   - y : training output
+%   - K : number of experts
+%   - nu : number of inducing points per expert
+%   - max_iters : maximum number of iterations (optional, default = 50)
+%   - hyp_iters : maximum number of optimization iteration (within each
+%   M-step) (optional, default = 10)
+%
+% OUTPUT:
+%  - w: the learned inducing inputs and hyperparameters
+%  - fval: objective values 
+%  - zmap: partition labels of training points
 %
 % 29/05/13
 % Trung V. Nguyen
 %
+if nargin == 5
+  max_iters = 50;
+  hyp_iters = 10;
+end
 fval = [];
 dim = size(x,2);
 delta = 1e-6;

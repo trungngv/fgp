@@ -1,5 +1,5 @@
 function [label,centers,dist,detD] = zhat_mahala(W,x,num_inducing,centers)
-%ZMAP_MAHALANOBIS [label,centers,dist,lambda] = zhat_mahala(W,x,num_inducing,centers)
+%ZMAP_MAHALANOBIS [label,centers,dist,detD] = zhat_mahala(W,x,num_inducing,centers)
 %   
 % Compute the fast allocation zhat using shared diagonal covariance matrix.
 % This is equivalent to assigning x to the nearest center measured by mahalanobis distance.

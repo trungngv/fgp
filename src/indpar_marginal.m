@@ -12,10 +12,7 @@ dim = size(x,2);
 W = reshape(w,numel(w)/K,K);
 
 % assign points to partition based on the basis points
-%xxx= load('temp.mat');
 label = feval(func_assign,W(1:end-dim-2,:),x,nu);
-%save('temp.mat','label')
-%fprintf('point changes = %d\n', sum(xxx.label ~= label));
 
 % objective and derivatives 
 fw = 0;
