@@ -51,6 +51,8 @@ All libraries are included for your convenience.
 
 References:
 ----------------------------
+[0] Nguyen, Trung Van and Bonilla, Edwin. Fast Allocation of Gaussian Process Experts. ICML 2014.
+
 [1] Rasmussen, Carl Edward and Nickisch, Hannes. Gaussian processes for machine learning (gpml) toolbox. The
 Journal of Machine Learning Research, 11:3011–3015, 2010
 
