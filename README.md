@@ -1,6 +1,8 @@
-Mixture of Sparse Gaussian Process Experts model (MSGP) package
+Fast Allocation of Gaussian Process Experts
 
-Author: Trung V. Nguyen (trung.ngvan@gmail.com)
+Author: Trung V. Nguyen (trung.ngvan@gmail.com) and Edwin V. Bonilla
+
+This is the package MSGP that implements the mixture of sparse Gaussian Process experts model in the paper 'Fast Allocation of Gaussian Process Experts'.
 
 1. Datasets
 -----------------------------
